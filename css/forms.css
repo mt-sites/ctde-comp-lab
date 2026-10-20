@@ -16,3 +16,12 @@
   text-decoration:none;font-weight:700;font-size:.9rem;
 }
 .download-btn:hover{background:#1677a8}
+
+.form-actions{display:flex;flex-wrap:wrap;gap:10px}
+.eform-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:white;color:#123b63;padding:10px 16px;border-radius:8px;
+  border:2px solid #123b63;
+  text-decoration:none;font-weight:700;font-size:.9rem;
+}
+.eform-btn:hover{background:#123b63;color:white}
