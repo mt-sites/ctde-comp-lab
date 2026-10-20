@@ -88,3 +88,30 @@ img.zoomable:hover{transform:scale(1.1);box-shadow:0 8px 20px #0003}
 @media(max-width:480px){
   .gallery a{flex:1 1 100%;max-width:100%}
 }
+
+/* ---------- Faculty request notice (top of home page) ---------- */
+.faculty-notice{padding-top:40px;padding-bottom:0}
+.faculty-card{
+  display:flex;gap:20px;align-items:flex-start;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-left:6px solid #2fa3d9;
+  border-radius:12px;
+  box-shadow:0 5px 20px #0000000d;
+  padding:25px 28px;
+}
+.faculty-icon{font-size:2.4rem;line-height:1}
+.faculty-body h2{color:var(--accent);font-size:1.35rem;margin-bottom:6px}
+.faculty-body > p{color:var(--text-muted);margin-bottom:12px}
+.faculty-steps{padding-left:22px;margin-bottom:18px}
+.faculty-steps li{margin:6px 0}
+.faculty-steps a{color:var(--accent);font-weight:700}
+.faculty-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.faculty-btn{display:inline-block;background:#123b63;color:white;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:700}
+.faculty-btn:hover{background:#1677a8}
+.faculty-link{color:var(--accent);font-weight:700;text-decoration:underline}
+
+@media(max-width:700px){
+  .faculty-notice{padding-top:30px}
+  .faculty-card{flex-direction:column;gap:10px;padding:20px}
+}
