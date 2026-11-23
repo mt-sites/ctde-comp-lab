@@ -10,6 +10,7 @@
 .swatch.vacant{background:#22c55e}
 .swatch.occupied{background:#cbd5e1}
 .swatch.full{background:#ef4444}
+.swatch.lunch{background:#fde68a}
 
 .schedule-wrap{background:var(--card-bg);border-radius:12px;box-shadow:0 5px 20px #0000000d;padding:10px}
 table.slot-grid{width:100%;border-collapse:collapse;table-layout:fixed}
@@ -21,6 +22,10 @@ table.slot-grid td.time-col{width:44%;background:#f8fafc;font-weight:700;color:v
 .slot{display:block;padding:10px 4px;font-size:.78rem;text-decoration:none;color:#14532d;background:#dcfce7;transition:background .2s ease}
 .slot:hover{background:#bbf7d0}
 .slot.occupied{background:#f1f5f9;color:#94a3b8;cursor:default;pointer-events:none}
+.slot small{display:block;font-size:.68rem;margin-top:2px;color:#94a3b8}
+.slot.lunch{background:#fef3c7;color:#92400e;cursor:default;pointer-events:none;font-style:italic}
+.occupied-list li.lunch-item{background:#fef3c7;border-color:#fde68a;color:#92400e}
+.occupied-list li.lunch-item strong{color:#92400e}
 .slot.full{background:#fee2e2;color:#991b1b;cursor:default;pointer-events:none}
 
 @media(max-width:700px){

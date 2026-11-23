@@ -32,7 +32,7 @@ const HOURS = [
 //    simple range in plain language, e.g. "1:00 PM to 4:00 PM". This automatically
 //    blocks every overlapping hourly slot AND shows up in the "Occupied Hours" list
 //    above — no need to list each hour separately. These repeat every week.
-const OCCUPIED_RANGES = [
+const MANUAL_OCCUPIED_RANGES = [
   { day: "Monday",    range: "8:00 AM to 12:00 PM" },
   { day: "Monday",    range: "1:00 PM to 4:00 PM" },
   { day: "Tuesday",   range: "8:00 AM to 12:00 PM" },
@@ -45,6 +45,27 @@ const OCCUPIED_RANGES = [
   { day: "Friday",    range: "1:00 PM to 4:00 PM" }
   // add more { day: "...", range: "... to ..." } entries as needed
 ];
+
+// AUTO MODE: if data/room-plotting-data.js is loaded, the occupied hours are built
+// from the room plotting schedule (back-to-back classes are merged into one range).
+// If that file is missing, the manual list above is used instead.
+function buildRangesFromRoomPlotting() {
+  const fmt = t => { const [h, m] = t.split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`; };
+  const out = [];
+  DAYS.forEach(day => {
+    const blocks = window.ROOM_PLOTTING.classes.filter(c => c.day === day).sort((a, b) => a.start.localeCompare(b.start));
+    let cur = null;
+    blocks.forEach(b => {
+      if (cur && cur.end === b.start) cur.end = b.end;
+      else { if (cur) out.push(cur); cur = { day, start: b.start, end: b.end }; }
+    });
+    if (cur) out.push(cur);
+  });
+  return out.map(r => ({ day: r.day, range: `${fmt(r.start)} to ${fmt(r.end)}` }));
+}
+const OCCUPIED_RANGES = (window.ROOM_PLOTTING && window.ROOM_PLOTTING.classes)
+  ? buildRangesFromRoomPlotting()
+  : MANUAL_OCCUPIED_RANGES;
 
 // 5. Maximum number of reservations allowed per vacant slot, PER DATE
 //    (e.g. Monday 9-10 AM allows 20 people on October 6, then resets to 0/20
@@ -96,6 +117,22 @@ function parseRange(rangeStr) {
   return { start, end };
 }
 
+// ---- lunch break (from data/room-plotting-data.js; defaults to 12:00 PM - 1:00 PM) ----
+const LUNCH = (window.ROOM_PLOTTING && window.ROOM_PLOTTING.lunch) || { start: "12:00", end: "13:00" };
+const toMinutes24 = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+function isLunchHour(hour) {
+  const hStart = parseTimeToMinutes(hour.start), hEnd = parseTimeToMinutes(hour.end);
+  return hStart < toMinutes24(LUNCH.end) && hEnd > toMinutes24(LUNCH.start);
+}
+function fmt12(t) { const [h, m] = t.split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`; }
+// Which scheduled class (from the room plotting) occupies this day + hour? (null if manual mode)
+function classForSlot(day, hour) {
+  if (!(window.ROOM_PLOTTING && window.ROOM_PLOTTING.classes)) return null;
+  const hStart = parseTimeToMinutes(hour.start), hEnd = parseTimeToMinutes(hour.end);
+  return window.ROOM_PLOTTING.classes.find(c =>
+    c.day === day && toMinutes24(c.start) < hEnd && toMinutes24(c.end) > hStart) || null;
+}
+
 function buildOccupiedSlots() {
   const occupied = new Set();
   OCCUPIED_RANGES.forEach(({ day, range }) => {
@@ -115,12 +152,14 @@ function buildOccupiedSlots() {
 function renderOccupiedList() {
   const list = document.getElementById("occupiedList");
   if (!OCCUPIED_RANGES.length) {
-    list.innerHTML = `<li style="color:#16a34a;font-weight:600">No regular classes currently block out the lab.</li>`;
+    list.innerHTML = `<li style="color:#16a34a;font-weight:600">No regular classes currently block out the lab.</li>` +
+      `<li class="lunch-item"><strong>Every day</strong>${fmt12(LUNCH.start)} to ${fmt12(LUNCH.end)} &mdash; Lunch break (no reservations)</li>`;
     return;
   }
   list.innerHTML = OCCUPIED_RANGES.map(({ day, range }) =>
     `<li><strong>${day}</strong>${range}</li>`
-  ).join("");
+  ).join("") +
+    `<li class="lunch-item"><strong>Every day</strong>${fmt12(LUNCH.start)} to ${fmt12(LUNCH.end)} &mdash; Lunch break (no reservations)</li>`;
 }
 
 // ---- date helpers ----
@@ -299,8 +338,12 @@ function renderDayView() {
     const key = `${day}|${hour.label}`;
     const count = counts[hour.label] || 0;
     html += `<tr><td class="time-col">${hour.label}</td>`;
-    if (occupiedSlots.has(key)) {
-      html += `<td><span class="slot occupied">Occupied</span></td>`;
+    if (isLunchHour(hour)) {
+      html += `<td><span class="slot lunch">Lunch break</span></td>`;
+    } else if (occupiedSlots.has(key)) {
+      const cls = classForSlot(day, hour);
+      const label = cls ? `Occupied<small>${cls.subject} &middot; ${cls.section}</small>` : "Occupied";
+      html += `<td><span class="slot occupied">${label}</span></td>`;
     } else if (count >= SLOT_LIMIT) {
       html += `<td><span class="slot full">Full (${SLOT_LIMIT}/${SLOT_LIMIT})</span></td>`;
     } else {

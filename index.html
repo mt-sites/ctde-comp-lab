@@ -112,32 +112,40 @@
 
 <section id="schedule">
 <div class="section-title"><h2>Laboratory Schedule</h2><p>AY 2026-2027</p></div>
-<table>
-<tr><th>Day</th><th>Morning</th><th>Afternoon</th></tr>
-<tr><td>Monday</td><td>8:00 AM – 12:00 PM</td><td>1:00 PM – 4:00 PM</td></tr>
-<tr><td>Tuesday</td><td>8:00 AM – 12:00 PM</td><td>1:00 PM – 5:00 PM</td></tr>
-<tr><td>Wednesday</td><td>8:00 AM – 12:00 PM</td><td>1:00 PM – 4:00 PM</td></tr>
-<tr><td>Thursday</td><td>8:00 AM – 12:00 PM</td><td>1:00 PM – 5:00 PM</td></tr>
-<tr><td>Friday</td><td>8:00 AM – 12:00 PM</td><td>1:00 PM – 4:00 PM</td></tr>
-</table>
+<p class="sched-meta" id="scheduleMeta"></p>
+<div class="sched-scroll" id="scheduleGrid">
+<noscript><p>Please enable JavaScript to view the laboratory schedule, or open the Room Plotting image below.</p></noscript>
+</div>
 <p class="schedule-cta">
 <a class="btn" href="booking.html">Book a Vacant Time Slot &rarr;</a>
 </p>
 
 <!--
-  ROOM PLOTTING / SEATING PLAN IMAGE
-  To add your own room layout image:
-  1. Save your room plotting/seating plan image into the Pictures folder
-     (e.g. Pictures/room-plotting.png).
-  2. Update the src below to match your filename.
-  3. The dashed box disappears automatically once a real image loads.
+  ROOM PLOTTING IMAGE (click to enlarge)
+  The schedule table above is generated from data/room-plotting-data.js.
+  When you replace Pictures/room-plotting.png, update that data file too.
 -->
 <div class="plan-card">
 <h3>Room Plotting</h3>
-<p></p>
+<p>The schedule above is based on this official room plotting.</p>
 <div class="plan-holder">
+<button type="button" class="plan-trigger" id="planTrigger" aria-label="Open room plotting image full screen">
 <img src="Pictures/room-plotting.png" alt="Laboratory room plotting / seating plan">
+</button>
 </div>
+<span class="plan-hint">🔍 Click the image to view it full screen</span>
+</div>
+
+<div class="plan-viewer" id="planViewer" role="dialog" aria-modal="true" aria-label="Room plotting full view">
+<div class="pv-bar">
+<span class="pv-title">Room Plotting</span>
+<div class="pv-actions">
+<button type="button" data-zoom>🔍 Zoom in</button>
+<a href="Pictures/room-plotting.png" target="_blank" rel="noopener">Open original ↗</a>
+<button type="button" data-close>✕ Close</button>
+</div>
+</div>
+<div class="pv-stage"><img src="Pictures/room-plotting.png" alt="Laboratory room plotting (enlarged)"></div>
 </div>
 </section>
 
@@ -240,6 +248,8 @@ headset) after use.</li>
 </div>
 
 </footer>
+<script src="data/room-plotting-data.js"></script>
+<script src="js/schedule.js"></script>
 <script src="js/nav-visibility.js"></script>
 <script src="js/security.js"></script>
 </body>

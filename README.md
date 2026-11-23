@@ -41,6 +41,7 @@ HTML, CSS, and JavaScript are kept in separate files rather than inline, so each
 │   ├── booking.css     # Booking page only: availability grid, legend, date picker
 │   └── forms.css       # Forms page only: form cards, download buttons
 ├── js/
+│   ├── schedule.js     # Home page: builds the schedule grid + full-screen room plotting viewer
 │   ├── security.js     # Shared: right-click/DevTools shortcut deterrent (used on all 4 pages)
 │   └── booking.js      # Booking page only: all reservation logic and configuration
 ├── Pictures/
@@ -108,3 +109,26 @@ The booking page has no backend of its own — it reads live reservation counts 
 ## 📜 License
 
 For educational use only. Not licensed for external redistribution.
+
+---
+
+## 🗓️ Auto-updating the Schedule from the Room Plotting image
+
+The Laboratory Schedule (`index.html`), Occupied Hours and Reserve a Time Slot (`booking.html`) are all generated from **`data/room-plotting-data.js`**, which is **rewritten automatically** from `Pictures/room-plotting.png`.
+
+**Free setup: nothing to configure.** Just keep the repository on GitHub.
+
+**To update the schedule**
+1. Upload/replace `Pictures/room-plotting.png` (same filename) in the repository.
+2. The *Update schedule from room plotting image* workflow (Actions tab) runs by itself, reads the image with free OCR (Tesseract), and commits a new `data/room-plotting-data.js`.
+3. Open the finished run → **Summary** to see the list of classes it found and any **"please review"** notes. Fix any wrong text directly in `data/room-plotting-data.js` (your fixes are remembered as the spelling reference for the next upload).
+
+**How accurate is it?** Day/time blocks are detected from the colored cells and are very reliable. The printed text (subject, section, instructor) is read with OCR and can have small slips, especially for new names; those are listed in the run summary. Spellings already in `data/room-plotting-data.js` are used to auto-correct future readings.
+
+**Optional, more accurate:** add a repository secret named `ANTHROPIC_API_KEY` and the same workflow will read the image with Claude instead (pay-as-you-go).
+
+**Run it by hand** (optional): `python3 scripts/update_schedule.py` (add `--dry-run` to preview, `--engine local` or `--engine claude` to choose). The free engine needs `tesseract-ocr` plus `pip install opencv-python-headless numpy pytesseract`.
+
+**Limits:** it expects the CSPC room plotting template (hour rows with Monday–Sunday columns and the dark lunch band). Only Monday–Friday is shown on the site. The booking grid uses the hours in `HOURS` (`js/booking.js`), which must match your Google Form choices, so classes outside 8 AM–5 PM show on the schedule but not in booking. The daily lunch break (`lunch`) is kept when the file is regenerated.
+
+Clicking the room plotting image on the home page opens it full screen with zoom.
